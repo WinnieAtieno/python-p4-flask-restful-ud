@@ -79,7 +79,36 @@ class NewsletterByID(Resource):
         )
 
         return response
+    
+    def patch(self,id):
+        data = request.get_json()
+        newsletter = Newsletter.query.filter_by(id=id).first()
+        if not newsletter:
+            return {"msg":f'newsletter with id {id} does not exist'}, 404
+        for key,value in data.items():
 
+            if value is None or value=='':
+                continue
+            setattr(newsletter,key,value)
+        
+        return newsletter.to_dict(),202
+
+
+    def delete(self, id):
+
+        record = Newsletter.query.filter(Newsletter.id == id).first()
+
+        db.session.delete(record)
+        db.session.commit()
+
+        response_dict = {"message": "record successfully deleted"}
+
+        response = make_response(
+            response_dict,
+            200
+        )
+
+        return response
 api.add_resource(NewsletterByID, '/newsletters/<int:id>')
 
 
